@@ -2,8 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 
 import numpy as np
-import time
-import sys
+
 import os
 
 from models import utils, caption
@@ -16,10 +15,12 @@ def finetune(config):
     device = torch.device(config.device)
     print(f'Initializing Device: {device}')
 
+    # seed 생성
     seed = config.seed + utils.get_rank()
     torch.manual_seed(seed)
     np.random.seed(seed)
 
+    # CATR captioning 모델 호출
     model, criterion = caption.build_model(config)
     checkpoint = torch.hub.load_state_dict_from_url(
                 url="https://github.com/saahiluppal/catr/releases/download/0.2/weight493084032.pth",
@@ -48,6 +49,8 @@ def finetune(config):
         param_dicts, lr=config.lr, weight_decay=config.weight_decay)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, config.lr_drop)
 
+
+    # data setting
     dataset_train = coco.build_dataset(config, mode='training')
     dataset_val = coco.build_dataset(config, mode='validation')
     print(f"Train: {len(dataset_train)}")
@@ -65,6 +68,7 @@ def finetune(config):
     data_loader_val = DataLoader(dataset_val, config.batch_size,
                                  sampler=sampler_val, drop_last=False, num_workers=config.num_workers)
 
+    # checkpoint setting
     if os.path.exists(config.checkpoint):
         print("Loading Checkpoint...")
         checkpoint = torch.load(config.checkpoint, map_location='cpu')
@@ -73,6 +77,7 @@ def finetune(config):
         lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
         config.start_epoch = checkpoint['epoch'] + 1
 
+    # Train
     print("Start Training..")
     for epoch in range(config.start_epoch, config.epochs):
         print(f"Epoch: {epoch}")

@@ -69,6 +69,7 @@ def is_dist_avail_and_initialized():
 def get_rank():
     if not is_dist_avail_and_initialized():
         return 0
+    # Returns the rank of current process group
     return dist.get_rank()
 
 

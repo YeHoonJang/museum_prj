@@ -21,7 +21,7 @@ class Config(object):
         self.seed = 42
         self.batch_size = 32
         self.num_workers = 4
-        self.checkpoint = './checkpoint.pth'
+        self.checkpoint = './checkpoint3.pth'
         self.clip_max_norm = 0.1
 
         # Transformer

@@ -48,7 +48,7 @@ class MLP(nn.Module):
 
 
 def build_model(config):
-    backbone = build_backbone(config)
+    backbone = build_backbone(config)   #out, position_encoding
     transformer = build_transformer(config)
 
     model = Caption(backbone, transformer, config.hidden_dim, config.vocab_size)

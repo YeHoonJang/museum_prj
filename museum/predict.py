@@ -1,28 +1,27 @@
-# Import modules
 import argparse
 import matplotlib.pyplot as plt
 from matplotlib import font_manager, rc
 from models import utils
 from tqdm import tqdm
 import numpy as np
-# Import Pytorch
+
 import torch
 from torch.utils.data import Dataset, DataLoader
-# Import custom modules
+
 import os
 from datasets.tokenization_kobert import KoBertTokenizer
 import json
 from datasets.CustomDataset import CustomDataset
 from models import caption
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'    # warning log filter
 from datasets import coco, utils
 from configuration import Config
 
-
-def collate_fn(batch):  # collate_fn: dataloader에서 batch를 불러올 때 그 batch 데이터를 어떻게 전처리할 지를 정의
-    batch = list(filter(lambda x: x is not None,
-                        batch))  # 해당 dataloader에서는 손상된 이미지 파일에 대해서 None으로 처리하기 때문에, None인 파일은 batch에서 제외
+# dataloader 에서 batch 를 불러올 때 그 batch 데이터를 어떻게 전처리 할 지를 정의
+def collate_fn(batch):
+    batch = list(filter(lambda x: x is not None, batch))
+    # 해당 dataloader 에서는 손상된 이미지 파일을 None 으로 처리 -> None 파일은 batch 에서 제외
     return torch.utils.data.dataloader.default_collate(batch)
 
 
@@ -74,13 +73,24 @@ def evaluate(model, data_loader, args, device):
 
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(description='Image Captioning')
-    parser.add_argument('--path', type=str, default='./웹레트로', help='path to image')  # caption을 뽑고자 하는 image folder의 경로
+
+    # TODO: 모든 이미지를 한 폴더에 넣으면 안되나요?
+    # image 폴더 내에 있는 모든 jpg 다 찾음 ->
+    # for (path, dirs, files) in os.walk("./image"):
+    #     for filename in files:
+    #         ext = os.path.splitext(filename)[-1]
+    #         if ext == ".jpg":
+    #             file_path = os.path.join(path, filename)
+
+    # TODO: 여기 지금 일일히 폴더 이름 하드코딩 하게 돼있는데 위에 처럼 한 폴더에 이미지 다 넣고 for문 돌리면 안되나요?
+    parser.add_argument('--path', type=str, default='./image/영원한나르시스트천경자', help='path to image')  # caption을 뽑고자 하는 image folder의 경로
     parser.add_argument('--v', type=str, help='version', default='v4')  # 본 모델은 torchhub에 있기 때문에 v4이상으로 지정해야 함
     parser.add_argument('--checkpoint', type=str, help='checkpoint path',
                         default='./checkpoint3.pth')  # 한국어 COCO 데이터셋으로 훈련한 checkpoint load
-    parser.add_argument('--json_file_name', type=str, help='json file name', default="webretro")  # 저장하고자 하는 json 파일 경로
+
+    # TODO: file 별 filename.json 으로? 아님 하나의 json 파일에 다?
+    parser.add_argument('--json_file_name', type=str, help='json file name', default="tmp")  # 저장하고자 하는 json 파일 경로
     args = parser.parse_args()
 
     image_path = args.path
@@ -90,10 +100,10 @@ if __name__ == '__main__':
     font = font_manager.FontProperties(fname=font_path).get_name()
     rc('font', family=font)
 
-    if torch.cuda.is_available():
-        device = 'cuda'
-    else:
-        device = 'cpu'
+    # if torch.cuda.is_available():
+    #     device = 'cuda'
+    # else:
+    device = 'cpu'
 
     json_list = list()
     config = Config()
@@ -101,9 +111,7 @@ if __name__ == '__main__':
     # load dataloader
     predict_Dataset = CustomDataset(data_path=args.path, transform=coco.val_transform)
     sampler_val = torch.utils.data.SequentialSampler(predict_Dataset)
-    predict_dataloader = DataLoader(dataset=predict_Dataset, batch_size=config.batch_size, sampler = sampler_val,
-                                    collate_fn = collate_fn, drop_last=False, shuffle=False,
-                                    num_workers=config.num_workers)
+    predict_dataloader = DataLoader(dataset=predict_Dataset, batch_size=config.batch_size, sampler = sampler_val, collate_fn = collate_fn, drop_last=False, shuffle=False, num_workers=config.num_workers)
 
     if version == 'v1':
         model = torch.hub.load('saahiluppal/catr', 'v1', pretrained=True)
@@ -124,7 +132,5 @@ if __name__ == '__main__':
             checkpoint = torch.load(checkpoint_path, map_location=device)
             model.load_state_dict(checkpoint['model'])
 
-
     model.to(device)
-
     evaluate(model, predict_dataloader, args, device)

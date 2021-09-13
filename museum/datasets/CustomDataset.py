@@ -12,11 +12,9 @@ from .utils import nested_tensor_from_tensor_list
 class CustomDataset(Dataset):
 
     def __init__(self, data_path, transform):
-    
-
         tokenizer = KoBertTokenizer.from_pretrained('monologg/kobert')
         config = Config()
-        
+
         self.dir_element = os.listdir(data_path) 
         self.transform = transform
         self.data_path = data_path
