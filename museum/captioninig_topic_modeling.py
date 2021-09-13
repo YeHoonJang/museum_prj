@@ -5,8 +5,5 @@ import caption_generator
 import konlpy_topic_modeling
 
 if __name__ == '__main__':
-    print("main")
     caption_generator.main()
-    print("caption done")
     konlpy_topic_modeling.main()
-    print("tm done")
