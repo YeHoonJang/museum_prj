@@ -17,7 +17,7 @@ class Config(object):
         self.dilation = True
         
         # Basic
-        self.device = 'cuda'
+        self.device = 'cpu'
         self.seed = 42
         self.batch_size = 32
         self.num_workers = 4

@@ -1,9 +1,7 @@
 import argparse
 import matplotlib.pyplot as plt
 from matplotlib import font_manager, rc
-from models import utils
 from tqdm import tqdm
-import numpy as np
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -15,7 +13,7 @@ from datasets.CustomDataset import CustomDataset
 from models import caption
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'    # warning log filter
-from datasets import coco, utils
+from datasets import coco
 from configuration import Config
 
 # dataloader 에서 batch 를 불러올 때 그 batch 데이터를 어떻게 전처리 할 지를 정의
@@ -27,6 +25,7 @@ def collate_fn(batch):
 
 @torch.no_grad()
 def evaluate(model, data_loader, args, device):
+    config = Config()
     model.eval()
     tokenizer = KoBertTokenizer.from_pretrained('monologg/kobert')  # kobert tokenizer 호출
     fig_idx = 0
@@ -43,10 +42,10 @@ def evaluate(model, data_loader, args, device):
 
             # predict captions
             for i in range(config.max_position_embeddings - 1):
-
                 predictions = model(images, caps, cap_masks).to(device)
                 predictions = predictions[:, i, :]
                 predicted_id = torch.argmax(predictions, axis=-1)
+                print(predicted_id)
 
                 if predicted_id[0] == 102:
                     return caps
@@ -57,43 +56,40 @@ def evaluate(model, data_loader, args, device):
             # predict 된 file, caption들을 pair단위로 list에 저장
             for i in range(len(caps)):
                 result = tokenizer.decode(caps[i].tolist(), skip_special_tokens=True)
-                json_list.append({"file_name": file_name[i], "caption": result.capitalize()})
+                json_list.append({"file_name": file_name[i].strip(), "caption": result.capitalize()})
                 ax = fig.add_subplot(data_loader.batch_size / 2, 2, i + 1, xticks=[], yticks=[])
                 imgs = images[i].cpu().numpy().transpose(1, 2, 0)
                 ax.imshow(imgs)
                 ax.set_title(result.capitalize())
 
             fig.tight_layout()
-            plt.savefig(os.path.join('./figures', args.json_file_name + '_' + str(fig_idx)))
 
+            # figure 디렉토리 유무 확인 후 생성
+            if platform == "win32":
+                if os.path.isdir("figure"):
+                    file_path = os.path.join('figures', args.json_file_name + '_' + str(fig_idx))
+                    plt.savefig(file_path)
+                else:
+                    os.mkdir("figure")
+                    file_path = os.path.join('figures', args.json_file_name + '_' + str(fig_idx))
+                    plt.savefig(file_path)
             fig_idx = fig_idx + 1
 
             # list에 저장된 caption을 json 파일에 작성
             json.dump({args.json_file_name: json_list}, make_file, ensure_ascii=False, indent="\t")
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+def main():
+    print("caption_generator")
+
     parser = argparse.ArgumentParser(description='Image Captioning')
-
-    # TODO: 모든 이미지를 한 폴더에 넣으면 안되나요?
-    # image 폴더 내에 있는 모든 jpg 다 찾음 ->
-    # for (path, dirs, files) in os.walk("./image"):
-    #     for filename in files:
-    #         ext = os.path.splitext(filename)[-1]
-    #         if ext == ".jpg":
-    #             file_path = os.path.join(path, filename)
-
-    # TODO: 여기 지금 일일히 폴더 이름 하드코딩 하게 돼있는데 위에 처럼 한 폴더에 이미지 다 넣고 for문 돌리면 안되나요?
-    parser.add_argument('--path', type=str, default='./image/영원한나르시스트천경자', help='path to image')  # caption을 뽑고자 하는 image folder의 경로
+    parser.add_argument('--path', type=str, default='./image', help='path to image')  # caption을 뽑고자 하는 image folder의 경로
     parser.add_argument('--v', type=str, help='version', default='v4')  # 본 모델은 torchhub에 있기 때문에 v4이상으로 지정해야 함
-    parser.add_argument('--checkpoint', type=str, help='checkpoint path',
-                        default='./checkpoint3.pth')  # 한국어 COCO 데이터셋으로 훈련한 checkpoint load
-
-    # TODO: file 별 filename.json 으로? 아님 하나의 json 파일에 다?
-    parser.add_argument('--json_file_name', type=str, help='json file name', default="tmp")  # 저장하고자 하는 json 파일 경로
+    parser.add_argument('--checkpoint', type=str, help='checkpoint path', default='./checkpoint3.pth')  # 한국어 COCO 데이터셋으로 훈련한 checkpoint load
+    parser.add_argument('--json_file_name', type=str, help='json file name', default="image_caption")  # 저장하고자 하는 json 파일 경로
     args = parser.parse_args()
 
-    image_path = args.path
     version = args.v
     checkpoint_path = args.checkpoint
     font_path = 'C:/Windows/Fonts/gulim.ttc'
@@ -105,7 +101,6 @@ if __name__ == '__main__':
     # else:
     device = 'cpu'
 
-    json_list = list()
     config = Config()
 
     # load dataloader

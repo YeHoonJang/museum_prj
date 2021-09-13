@@ -37,7 +37,6 @@ def main(config):
             "lr": config.lr_backbone,
         },
     ]
-    print(f"param_dicts: {param_dicts}")
 
     optimizer = torch.optim.AdamW(
         param_dicts, lr=config.lr, weight_decay=config.weight_decay)

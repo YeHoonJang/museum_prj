@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import pandas as pd
 import gensim
 from gensim import corpora
+
 import csv
+from sys import platform
+
 from konlpy.tag import Mecab
 
 captions = list()
@@ -17,7 +22,12 @@ with open('./data/total_datas.csv', encoding='UTF8') as f:
 caption = pd.DataFrame({'caption':captions})
 
 # konlpy Mecab tokenizing
-mecab = Mecab()
+# window 환경에서 meceb dict 경로 지정
+if platform == "win32":
+    mecab = Mecab(dicpath=r"C:\mecab\mecab-ko-dic")
+else:
+    mecab = Mecab()
+
 caption['clean_caption'] = caption['caption'].apply(lambda x: [i for i in mecab.nouns(x) if i not in ko_stop_words])
 
 dictionary = corpora.Dictionary(caption['clean_caption'])
