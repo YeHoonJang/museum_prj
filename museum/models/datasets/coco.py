@@ -112,7 +112,7 @@ def build_dataset(args, mode='training'):
         data = CocoCaption(train_dir, read_json(
             train_file), max_length=args.max_position_embeddings, limit=args.limit, transform=train_transform, mode='training')
   
-        print(data[1])
+        # print(data[1])
   
         return data
 
