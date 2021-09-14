@@ -1,6 +1,4 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-from collections import OrderedDict
-
 import torch
 import torch.nn.functional as F
 import torchvision
@@ -9,9 +7,7 @@ from torchvision.models._utils import IntermediateLayerGetter
 from typing import Dict, List
 
 from .utils import NestedTensor, is_main_process
-
 from .position_encoding import build_position_encoding
-
 
 class FrozenBatchNorm2d(torch.nn.Module):
     """
@@ -105,11 +101,11 @@ class Joiner(nn.Sequential):
         return out, pos
 
 
-def build_backbone(config):
-    position_embedding = build_position_encoding(config)
-    train_backbone = config.lr_backbone > 0
+def build_backbone(args):
+    position_embedding = build_position_encoding(args)
+    train_backbone = args.lr_backbone > 0
     return_interm_layers = False
-    backbone = Backbone(config.backbone, train_backbone, return_interm_layers, config.dilation)
+    backbone = Backbone(args.backbone, train_backbone, return_interm_layers, args.dilation)
     model = Joiner(backbone, position_embedding)
     model.num_channels = backbone.num_channels
     return model

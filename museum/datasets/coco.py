@@ -6,12 +6,10 @@ from PIL import Image
 import numpy as np
 import random
 import os
-from transformers import BertTokenizer
 from .tokenization_kobert import KoBertTokenizer
 from .utils import nested_tensor_from_tensor_list, read_json
 
 MAX_DIM = 299
-
 
 def under_max(image):
     if image.mode != 'RGB':
@@ -105,24 +103,24 @@ class CocoCaption(Dataset):
         return image.tensors.squeeze(0), image.mask.squeeze(0), caption, cap_mask, 
 
 
-def build_dataset(config, mode='training'):
+def build_dataset(args, mode='training'):
     if mode == 'training':
-        train_dir = os.path.join(config.image_dir, 'train2014')
+        train_dir = os.path.join(args.image_dir, 'train2014')
         train_file = os.path.join(
-            config.image_dir, 'annotations', 'captions_train2014_korean.json')
+            args.image_dir, 'annotations', 'captions_train2014_korean.json')
         data = CocoCaption(train_dir, read_json(
-            train_file), max_length=config.max_position_embeddings, limit=config.limit, transform=train_transform, mode='training')
+            train_file), max_length=args.max_position_embeddings, limit=args.limit, transform=train_transform, mode='training')
   
         print(data[1])
   
         return data
 
     elif mode == 'validation':
-        val_dir = os.path.join(config.image_dir, 'val2014')
+        val_dir = os.path.join(args.image_dir, 'val2014')
         val_file = os.path.join(
-            config.image_dir, 'annotations', 'captions_val2014_korean.json')
+            args.image_dir, 'annotations', 'captions_val2014_korean.json')
         data = CocoCaption(val_dir, read_json(
-            val_file), max_length=config.max_position_embeddings, limit=config.limit, transform=val_transform, mode='validation')
+            val_file), max_length=args.max_position_embeddings, limit=args.limit, transform=val_transform, mode='validation')
         return data
 
     else:

@@ -1,25 +1,21 @@
 #import system module(?)
 import os
-from configuration import Config 
 import torch
 from PIL import Image
-#import torch modules
 from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
 from .tokenization_kobert import KoBertTokenizer
 from .utils import nested_tensor_from_tensor_list
 
 class CustomDataset(Dataset):
 
-    def __init__(self, data_path, transform):
+    def __init__(self, data_path, transform, args):
         tokenizer = KoBertTokenizer.from_pretrained('monologg/kobert')
-        config = Config()
 
         self.dir_element = os.listdir(data_path) 
         self.transform = transform
         self.data_path = data_path
         self.start_token = tokenizer.convert_tokens_to_ids(tokenizer._cls_token)
-        self.max_length = config.max_position_embeddings
+        self.max_length = args.max_position_embeddings
 
     def __len__(self):
         return len(self.dir_element)

@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import copy
-from typing import Optional, List
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
@@ -9,7 +9,7 @@ from torch import nn, Tensor
 
 class Transformer(nn.Module):
 
-    def __init__(self, config, d_model=512, nhead=8, num_encoder_layers=6,
+    def __init__(self, args, d_model=512, nhead=8, num_encoder_layers=6,
                  num_decoder_layers=6, dim_feedforward=2048, dropout=0.1,
                  activation="relu", normalize_before=False,
                  return_intermediate_dec=False):
@@ -21,7 +21,7 @@ class Transformer(nn.Module):
         self.encoder = TransformerEncoder(
             encoder_layer, num_encoder_layers, encoder_norm)
 
-        self.embeddings = DecoderEmbeddings(config)
+        self.embeddings = DecoderEmbeddings(args)
         decoder_layer = TransformerDecoderLayer(d_model, nhead, dim_feedforward,
                                                 dropout, activation, normalize_before)
         decoder_norm = nn.LayerNorm(d_model)
@@ -269,17 +269,17 @@ class TransformerDecoderLayer(nn.Module):
 
 
 class DecoderEmbeddings(nn.Module):
-    def __init__(self, config):
+    def __init__(self, args):
         super().__init__()
         self.word_embeddings = nn.Embedding(
-            config.vocab_size, config.hidden_dim, padding_idx=config.pad_token_id)
+            args.vocab_size, args.hidden_dim, padding_idx=args.pad_token_id)
         self.position_embeddings = nn.Embedding(
-            config.max_position_embeddings, config.hidden_dim
+            args.max_position_embeddings, args.hidden_dim
         )
 
         self.LayerNorm = torch.nn.LayerNorm(
-            config.hidden_dim, eps=config.layer_norm_eps)
-        self.dropout = nn.Dropout(config.dropout)
+            args.hidden_dim, eps=args.layer_norm_eps)
+        self.dropout = nn.Dropout(args.dropout)
 
     def forward(self, x):
         input_shape = x.size()
@@ -325,15 +325,15 @@ def generate_square_subsequent_mask(sz):
     return mask
 
 
-def build_transformer(config):
+def build_transformer(args):
     return Transformer(
-        config,
-        d_model=config.hidden_dim,
-        dropout=config.dropout,
-        nhead=config.nheads,
-        dim_feedforward=config.dim_feedforward,
-        num_encoder_layers=config.enc_layers,
-        num_decoder_layers=config.dec_layers,
-        normalize_before=config.pre_norm,
+        args,
+        d_model=args.hidden_dim,
+        dropout=args.dropout,
+        nhead=args.nheads,
+        dim_feedforward=args.dim_feedforward,
+        num_encoder_layers=args.enc_layers,
+        num_decoder_layers=args.dec_layers,
+        normalize_before=args.pre_norm,
         return_intermediate_dec=False,
     )

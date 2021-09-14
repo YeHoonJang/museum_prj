@@ -3,7 +3,6 @@ from typing import Optional, List
 from torch import Tensor
 
 import json
-import os
 
 MAX_DIM = 299
 
