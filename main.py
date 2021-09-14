@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
 import argparse
 import warnings
 warnings.filterwarnings(action='ignore')
 
-from models import train_captioning, caption_generator, konlpy_topic_modeling
-
+from captioning.train import captioning_training
+from captioning.generate import caption_generating
+from topic.train import topic_training
+from topic.generate import topic_weight_calculating
 
 def main(args):
 
@@ -18,31 +19,36 @@ def main(args):
     if args.captioning_training:
         captioning_training(args)
 
-    if args.captioning:
-        captioning(args)
+    if args.caption_generating:
+        caption_generating(args)
 
     if args.topic_training:
         topic_training(args)
+    
+    if args.topic_weight_calculate:
+        topic_weight_calculate(args)
+
+    if args.regression_ensemble:
+        regression_ensemble(args)
 
     # Time calculate
     print(f'Done! ; {round((time()-total_start_time)/60, 3)}min spend')
-
-    # train_captioning.main(args)
-    caption_generator.main(args)
-    konlpy_topic_modeling.main(args)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Parsing Method")
 
     # Task setting
     parser.add_argument('--captioning_training', action='store_true')
-    parser.add_argument('--captioning', action='store_true')
+    parser.add_argument('--caption_generating', action='store_true')
     parser.add_argument('--topic_training', action='store_true')
+    parser.add_argument('--topic_weight_calculating', action='store_ture')
     parser.add_argument('--resume', action='store_true')
 
     # Image Captioning
-    parser.add_argument('--path', type=str, help='path to image', default='/HDD/dataset/sba_museum/image')  # caption을 뽑고자 하는 image folder의 경로
-    parser.add_argument('--v', type=str, help='version', default='v4')  # 본 모델은 torchhub에 있기 때문에 v4이상으로 지정해야 함
+    parser.add_argument('--path', type=str, default='/HDD/dataset/sba_museum/image',
+                        help='path to image')
+    parser.add_argument('--catr_version', type=str, default='v4', choices=['v1', 'v2', 'v3', 'v4']
+                        help='version')  # 본 모델은 torchhub에 있기 때문에 v4이상으로 지정해야 함
 
     parser.add_argument('--json_file_name', type=str, help='json file name', default="/HDD/dataset/sba_museum/image_caption")  # 저장하고자 하는 json 파일 경로
 
@@ -53,7 +59,6 @@ if __name__ == '__main__':
     # Epochs
     parser.add_argument('--epochs', type=int, help='epoch', default=30)
     parser.add_argument('--lr_drop', type=int, help='learning rate drop', default=20)
-    parser.add_argument('--start_epoch', type=int, help='start epoch', default=0)
     parser.add_argument('--weight_decay', type=float, help='weight decay', default=1e-4)
 
     # Backbone
