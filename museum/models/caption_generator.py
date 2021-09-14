@@ -1,16 +1,18 @@
+# -*- coding: utf-8 -*-
 from tqdm import tqdm
 
 import torch
 from torch.utils.data import Dataset, DataLoader
 
 import os
-from datasets.tokenization_kobert import KoBertTokenizer
 import json
-from datasets.CustomDataset import CustomDataset
-from models import caption
+
+from .datasets.tokenization_kobert import KoBertTokenizer
+from .datasets.CustomDataset import CustomDataset
+from . import caption
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'    # warning log filter
-from datasets import coco
+from .datasets import coco
 
 # dataloader 에서 batch 를 불러올 때 그 batch 데이터를 어떻게 전처리 할 지를 정의
 def collate_fn(batch):
@@ -56,10 +58,10 @@ def main(args):
     version = args.v
     checkpoint_path = args.checkpoint
 
-    # if torch.cuda.is_available():
-    #     device = 'cuda'
-    # else:
-    device = 'cpu'
+    if torch.cuda.is_available():
+        device = 'cuda'
+    else:
+        device = 'cpu'
 
 
     # load dataloader

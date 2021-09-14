@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import torch
 from torch.utils.data import DataLoader
 
@@ -5,9 +6,10 @@ import numpy as np
 
 import os
 
-import utils, caption
-from ..datasets import coco
-from museum.models.engine import train_one_epoch, evaluate
+from . import utils, caption
+from .datasets import coco
+# from museum.datasets.coco import build_dataset
+from .engine import train_one_epoch, evaluate
 
 
 def main(args):
@@ -18,7 +20,6 @@ def main(args):
     seed = args.seed + utils.get_rank()
     torch.manual_seed(seed)
     np.random.seed(seed)
-    print(seed)
 
     # captioning 모델 호출
     model, criterion = caption.build_model(args)
@@ -89,3 +90,4 @@ def main(args):
         print(f"Validation Loss: {validation_loss}")
 
         print()
+

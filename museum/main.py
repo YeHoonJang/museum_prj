@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
 import argparse
 import warnings
 warnings.filterwarnings(action='ignore')
 
-from models import caption_generator, konlpy_topic_modeling
+from models import train_captioning, caption_generator, konlpy_topic_modeling
 
 
 def main(args):
+    # train_captioning.main(args)
     caption_generator.main(args)
     konlpy_topic_modeling.main(args)
 

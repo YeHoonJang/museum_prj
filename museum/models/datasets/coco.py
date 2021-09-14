@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from torch.utils.data import Dataset
 import torchvision.transforms.functional as TF
 import torchvision as tv
@@ -7,7 +8,7 @@ import numpy as np
 import random
 import os
 from .tokenization_kobert import KoBertTokenizer
-from .utils import nested_tensor_from_tensor_list, read_json
+from ..utils  import nested_tensor_from_tensor_list, read_json
 
 MAX_DIM = 299
 

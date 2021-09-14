@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 from typing import List, Optional
 
@@ -5,6 +6,14 @@ import torch
 import torch.distributed as dist
 from torch import Tensor
 
+import json
+
+MAX_DIM = 299
+
+def read_json(file_name):
+    with open(file_name) as handle:
+        out = json.load(handle)
+    return out
 
 def _max_by_axis(the_list):
     # type: (List[List[int]]) -> List[int]

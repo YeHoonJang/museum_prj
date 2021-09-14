@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import torch
 
@@ -5,7 +6,7 @@ import math
 import sys
 import tqdm
 
-from ..models import utils
+from . import utils
 
 
 def train_one_epoch(model, criterion, data_loader,

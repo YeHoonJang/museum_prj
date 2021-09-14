@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #import system module(?)
 import os
 import torch
