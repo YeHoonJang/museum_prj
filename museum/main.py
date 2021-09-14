@@ -13,10 +13,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Parsing Method")
 
     # Image Captioning
-    parser.add_argument('--path', type=str, help='path to image', default='.\image\영원한나르시스트천경자')  # caption을 뽑고자 하는 image folder의 경로
+    parser.add_argument('--path', type=str, help='path to image', default='.\image')  # caption을 뽑고자 하는 image folder의 경로
     parser.add_argument('--v', type=str, help='version', default='v4')  # 본 모델은 torchhub에 있기 때문에 v4이상으로 지정해야 함
 
-    parser.add_argument('--json_file_name', type=str, help='json file name', default="영원한나르시스트천경자")  # 저장하고자 하는 json 파일 경로
+    parser.add_argument('--json_file_name', type=str, help='json file name', default="image_caption")  # 저장하고자 하는 json 파일 경로
 
     # Learning Rates
     parser.add_argument('--lr_backbone', type=float, help='backbone learning rate', default=1e-5)
