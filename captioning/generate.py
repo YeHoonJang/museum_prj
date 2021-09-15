@@ -42,7 +42,6 @@ def evaluate(model, data_loader, args, device):
             # list에 저장된 caption을 json 파일에 작성
             json.dump({args.json_file_name: json_list}, make_file, ensure_ascii=False, indent="\t")
 
-
 def caption_generating(args):
 
     # Device setting

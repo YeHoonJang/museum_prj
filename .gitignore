@@ -1,4 +1,5 @@
 checkpoint3.pth
+*.ipynb
 
 .idea/
 .DS_Store
