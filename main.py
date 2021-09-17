@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # Image Captioning
     parser.add_argument('--path', type=str, default='/HDD/dataset/sba_museum/image',
                         help='path to image')
-    parser.add_argument('--catr_version', type=str, default='v4', choices=['v1', 'v2', 'v3', 'v4']
+    parser.add_argument('--catr_version', type=str, default='v4', choices=['v1', 'v2', 'v3', 'v4'],
                         help='version')  # 본 모델은 torchhub에 있기 때문에 v4이상으로 지정해야 함
 
     parser.add_argument('--json_file_name', type=str, help='json file name', default="/HDD/dataset/sba_museum/image_caption")  # 저장하고자 하는 json 파일 경로
