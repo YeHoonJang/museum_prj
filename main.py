@@ -91,6 +91,9 @@ if __name__ == '__main__':
     # Dataset
     parser.add_argument('--image_dir', type=str, help='coco image path', default='/HDD/dataset/coco_2014')
     parser.add_argument('--anno_dir', type=str, help='annotation path', default='/HDD/dataset/caption_ko')
+    parser.add_argument('--text_data_path', type=str, help='text data path', default='/HDD/dataset/sba_museum/text')
+    parser.add_argument('--caption_data_path', type=str, help='caption data path', default='/HDD/dataset/sba_museum/caption')
+    parser.add_argument('--total_data_path', type=str, help='total preprocessed data path',default='/HDD/dataset/sba_museum/')
     parser.add_argument('--limit', type=int, help='limit', default=-1)
 
     args = parser.parse_args()
