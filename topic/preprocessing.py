@@ -12,7 +12,7 @@ def text_preprocessing(args):
     #===================================#
 
     news_data_total = pd.DataFrame()
-    csv_list = glob(os.path.join(args.text_data_path, '*/*.csv'))
+    csv_list = glob(os.path.join(args.text_data_path, 'news/*/*.csv'))
 
     for path_ in csv_list:
         # Read data
@@ -27,19 +27,37 @@ def text_preprocessing(args):
 
         # Concatenate
         news_data_total = pd.concat([news_data_total, news_dat])
+    news_data_total.reset_index(inplace=True, drop=True)
+
+
+    # ===================================#
+    # ========TripAdvisor Reviews========#
+    # ===================================#
+
+    review_data_total = pd.DataFrame()
+    review_list = glob(os.path.join(args.text_data_path, 'review/*.csv'))
+
+    for path_ in review_list:
+        # Read data
+        review_dat = pd.read_csv(path_, encoding='cp949')
+        review_dat.columns = ['date', 'title', 'review']
+
+        # Text summation
+        review_dat['text'] = review_dat['title'] + ' ' + review_dat['review']
+
+        # Concatenate
+        review_data_total = pd.concat([review_data_total, review_dat])
+    review_data_total.reset_index(inplace=True, drop=True)
+
 
     #===================================#
     #=============Instagram=============#
     #===================================#
 
     insta_data_total = pd.DataFrame()
-    json_list = glob(os.path.join(args.image_path, '*/*/*.json'))
+    json_list = glob(os.path.join(args.path, '*/*/*.json'))
 
     for path_ in json_list:
-        # Captioning file pass (Need to remove)
-        if 'caption' in path_:
-            continue
-
         # Data pre-processing
         insta_dat = pd.read_json(path_).transpose()
 
@@ -49,15 +67,16 @@ def text_preprocessing(args):
     # Content pre-processing
     insta_data_total['content'] = insta_data_total.index
 
-    #===================================#
-    #============Captioning=============#
-    #===================================#
+
+    # ===================================#
+    # ============Captioning=============#
+    # ===================================#
 
     caption_data_total = pd.DataFrame()
     caption_json_list = glob(os.path.join(args.caption_data_path, '*/*.json'))
 
     for path_ in caption_json_list:
-        with open(path_, 'r') as f:
+        with open(path_, 'r', encoding='utf-8') as f:
             pre_data = json.load(f)
             data_name = list(pre_data.keys())[0]
             caption_dat = pd.DataFrame(pre_data[data_name])
@@ -68,12 +87,29 @@ def text_preprocessing(args):
         # Concatenate
         caption_data_total = pd.concat([caption_data_total, caption_dat])
 
-    # Data pre-processing
+    # Data pre-processing - add date series
     caption_data_total = pd.merge(caption_data_total, insta_data_total[['date', 'content']], on='content')
+    caption_data_total = caption_data_total.groupby(['date', 'content'])['caption'].apply(lambda x: ', '.join(x)).reset_index()
 
-    #===================================#
-    #===============Total===============#
-    #===================================#
 
-    news_data_total_text = [['date', 'text']]
-    insta_data_total_text = [['date', 'text']]
+    # ===================================#
+    # ======Instagram & Caption Join=====#
+    # ===================================#
+
+    join_data_total = pd.merge(insta_data_total, caption_data_total, on=['date', 'content'], how='outer').reset_index()
+    join_data_total['text'] = join_data_total.set_index('index')[['text', 'caption']].stack().groupby(level=0,sort=False).agg(', '.join)
+
+    # ===================================#
+    # ===============Total===============#
+    # ===================================#
+
+    news_data_total_text = ['date', 'text']
+    review_data_total_text = ['date', 'text']
+    join_data_total_text = ['date', 'text']
+
+    total_data = pd.concat([news_data_total[news_data_total_text], review_data_total[review_data_total_text],
+                            join_data_total[join_data_total_text]])
+
+
+    # Save csv
+    total_data.to_csv(os.path.join(args.total_data_path,"total_datas.csv"), index=False)
