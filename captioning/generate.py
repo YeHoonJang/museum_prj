@@ -1,13 +1,16 @@
+# -*- coding: utf-8 -*-
 # Import Modules
 import os
 import json
+import tqdm
 # Import PyTorch
 import torch
 from torch.utils.data import Dataset, DataLoader
 # Import Custom Modules
-from datasets.CustomDataset import CustomDataset
-from datasets.tokenization_kobert import KoBertTokenizer
-
+from captioning.datasets.CustomDataset import CustomDataset
+from captioning.datasets.tokenization_kobert import KoBertTokenizer
+from captioning.datasets import coco
+from captioning.utils import collate_fn
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'    # warning log filter
 
 @torch.no_grad()
@@ -16,14 +19,15 @@ def evaluate(model, data_loader, args, device):
     tokenizer = KoBertTokenizer.from_pretrained('monologg/kobert')
     json_list = []
 
-    with open(os.path.join("data", args.json_file_name) + '.json', 'w', encoding="utf-8") as make_file:
-        for images, caps, cap_masks, file_name in tqdm(data_loader):
+    with open(args.json_file_name, 'w', encoding="utf-8") as make_file:
+        for images, caps, cap_masks, file_name in tqdm.tqdm(data_loader):
             images = images.to(device)
             caps = caps.to(device)
             cap_masks = cap_masks.to(device)
 
             # predict captions
             for i in range(args.max_position_embeddings - 1):
+                print(i)
                 predictions = model(images, caps, cap_masks).to(device)
                 predictions = predictions[:, i, :]
                 predicted_id = torch.argmax(predictions, axis=-1)
@@ -50,8 +54,8 @@ def caption_generating(args):
     # load dataloader
     predict_Dataset = CustomDataset(data_path=args.path, transform=coco.val_transform, args=args)
     sampler_val = torch.utils.data.SequentialSampler(predict_Dataset)
-    predict_dataloader = DataLoader(dataset=predict_Dataset, batch_size=args.batch_size, 
-    collate_fn=collate_fn, drop_last=False, shuffle=False, num_workers=args.num_workers)
+    predict_dataloader = DataLoader(dataset=predict_Dataset, batch_size=args.batch_size, sampler=sampler_val,
+                                    collate_fn=collate_fn, drop_last=False, shuffle=False, num_workers=args.num_workers)
 
     if args.checkpoint is None:
         raise NotImplementedError('No model to chose from!')

@@ -8,7 +8,7 @@ import numpy as np
 import random
 import os
 from .tokenization_kobert import KoBertTokenizer
-from ..utils  import nested_tensor_from_tensor_list, read_json
+from captioning.datasets.utils  import nested_tensor_from_tensor_list, read_json
 
 MAX_DIM = 299
 

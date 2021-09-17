@@ -1,6 +1,7 @@
 import argparse
 import warnings
 warnings.filterwarnings(action='ignore')
+from time import time
 
 from captioning.train import captioning_training
 from captioning.generate import caption_generating
@@ -14,7 +15,6 @@ def main(args):
 
     # Time setting
     total_start_time = time()
-
     # Task run
     if args.captioning_training:
         captioning_training(args)
@@ -26,7 +26,7 @@ def main(args):
         topic_training(args)
     
     if args.topic_weight_calculate:
-        topic_weight_calculate(args)
+        topic_weight_calculating(args)
 
     if args.regression_ensemble:
         regression_ensemble(args)
@@ -41,16 +41,16 @@ if __name__ == '__main__':
     parser.add_argument('--captioning_training', action='store_true')
     parser.add_argument('--caption_generating', action='store_true')
     parser.add_argument('--topic_training', action='store_true')
-    parser.add_argument('--topic_weight_calculating', action='store_ture')
+    parser.add_argument('--topic_weight_calculating', action='store_true')
     parser.add_argument('--resume', action='store_true')
 
     # Image Captioning
     parser.add_argument('--path', type=str, default='/HDD/dataset/sba_museum/image',
                         help='path to image')
-    parser.add_argument('--catr_version', type=str, default='v4', choices=['v1', 'v2', 'v3', 'v4'],
+    parser.add_argument('--catr_version', type=str, default='v3', choices=['v1', 'v2', 'v3', 'v4'],
                         help='version')  # 본 모델은 torchhub에 있기 때문에 v4이상으로 지정해야 함
 
-    parser.add_argument('--json_file_name', type=str, help='json file name', default="/HDD/dataset/sba_museum/image_caption")  # 저장하고자 하는 json 파일 경로
+    parser.add_argument('--json_file_name', type=str, help='json file name', default="/HDD/dataset/sba_museum/image_caption.json")  # 저장하고자 하는 json 파일 경로
 
     # Learning Rates
     parser.add_argument('--lr_backbone', type=float, help='backbone learning rate', default=1e-5)

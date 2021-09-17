@@ -3,12 +3,13 @@ import os
 import sys
 import tqdm
 import numpy as np
+import math
 # Import PyTorch
 import torch
 from torch.utils.data import DataLoader
 # Import Custom Modules
-from utils import NestedTensor
-from datasets import coco
+from captioning.datasets import utils
+from captioning.datasets import coco
 
 def train_one_epoch(model, criterion, data_loader,
                     optimizer, device, epoch, max_norm):
@@ -20,7 +21,7 @@ def train_one_epoch(model, criterion, data_loader,
 
     with tqdm.tqdm(total=total) as pbar:
         for images, masks, caps, cap_masks in data_loader:
-            samples = NestedTensor(images, masks).to(device)
+            samples = utils.NestedTensor(images, masks).to(device)
             caps = caps.to(device)
             cap_masks = cap_masks.to(device)
 
@@ -53,7 +54,7 @@ def evaluate(model, criterion, data_loader, device):
 
     with tqdm.tqdm(total=total) as pbar:
         for images, masks, caps, cap_masks in data_loader:
-            samples = NestedTensor(images, masks).to(device)
+            samples = utils.NestedTensor(images, masks).to(device)
             caps = caps.to(device)
             cap_masks = cap_masks.to(device)
 
@@ -105,12 +106,6 @@ def captioning_training(args):
         'valid': coco.build_dataset(args, mode='validation')
     }
 
-        'train': DataLoader(dataset_dict['train'], drop_last=True,
-                            batch_size=args.batch_size, shuffle=True, pin_memory=True,
-                            num_workers=args.num_workers),
-        'valid': DataLoader(dataset_dict['valid'], drop_last=False,
-                            batch_size=args.batch_size, shuffle=False, pin_memory=True,
-                            num_workers=args.num_workers)
     dataloader_dict = {
         'train': DataLoader(dataset_dict['train'], drop_last=True,
                             batch_size=args.batch_size, shuffle=True, pin_memory=True,
@@ -132,10 +127,10 @@ def captioning_training(args):
 
     # Train
     print("Start Training..")
-    for epoch in range(args.start_epoch, args.epochs):
+    for epoch in range(start_epoch, args.epochs):
         print(f"Epoch: {epoch}")
         epoch_loss = train_one_epoch(
-            model, criterion, data_loader_train, optimizer, device, epoch, args.clip_max_norm)
+            model, criterion, dataloader_dict['train'], optimizer, device, epoch, args.clip_max_norm)
         lr_scheduler.step()
         print(f"Training Loss: {epoch_loss}")
 
@@ -146,5 +141,5 @@ def captioning_training(args):
             'epoch': epoch,
         }, args.checkpoint)
 
-        validation_loss = evaluate(model, criterion, data_loader_val, device)
+        validation_loss = evaluate(model, criterion, dataloader_dict['valid'], device)
         print(f"Validation Loss: {validation_loss}")
