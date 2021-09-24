@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #import system module(?)
 import os
+import glob
 import torch
 from PIL import Image
 from torch.utils.data import Dataset
@@ -12,7 +13,7 @@ class CustomDataset(Dataset):
     def __init__(self, data_path, transform, args):
         tokenizer = KoBertTokenizer.from_pretrained('monologg/kobert')
 
-        self.dir_element = os.listdir(data_path) 
+        self.dir_element = glob.glob(data_path+"/*/*/*.jpg")
         self.transform = transform
         self.data_path = data_path
         self.start_token = tokenizer.convert_tokens_to_ids(tokenizer._cls_token)

@@ -27,7 +27,6 @@ def evaluate(model, data_loader, args, device):
 
             # predict captions
             for i in range(args.max_position_embeddings - 1):
-                print(i)
                 predictions = model(images, caps, cap_masks).to(device)
                 predictions = predictions[:, i, :]
                 predicted_id = torch.argmax(predictions, axis=-1)
@@ -53,8 +52,7 @@ def caption_generating(args):
 
     # load dataloader
     predict_Dataset = CustomDataset(data_path=args.path, transform=coco.val_transform, args=args)
-    sampler_val = torch.utils.data.SequentialSampler(predict_Dataset)
-    predict_dataloader = DataLoader(dataset=predict_Dataset, batch_size=args.batch_size, sampler=sampler_val,
+    predict_dataloader = DataLoader(dataset=predict_Dataset, batch_size=args.batch_size,
                                     collate_fn=collate_fn, drop_last=False, shuffle=False, num_workers=args.num_workers)
 
     if args.checkpoint is None:
