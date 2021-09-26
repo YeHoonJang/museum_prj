@@ -1,12 +1,18 @@
+import os
 import argparse
 import warnings
-warnings.filterwarnings(action='ignore')
+# warnings.filterwarnings(action='ignore')
+from glob import glob
 from time import time
 
 from captioning.train import captioning_training
 from captioning.generate import caption_generating
 from topic.train import topic_training
 from topic.generate import topic_weight_calculating
+
+def path_check(args):
+    if len(glob(os.path.join(args.captioning_image_path, '*/*/*.jpg'))) == 0:
+        raise Exception('No images to generate caption')
 
 def main(args):
 
@@ -45,12 +51,11 @@ if __name__ == '__main__':
     parser.add_argument('--resume', action='store_true')
 
     # Image Captioning
-    parser.add_argument('--path', type=str, default='/HDD/dataset/sba_museum/image',
+    parser.add_argument('--captioning_image_path', type=str, default='/HDD/dataset/sba_museum/image',
                         help='path to image')
     parser.add_argument('--catr_version', type=str, default='v3', choices=['v1', 'v2', 'v3', 'v4'],
-                        help='version')  # 본 모델은 torchhub에 있기 때문에 v4이상으로 지정해야 함
-
-    parser.add_argument('--json_file_name', type=str, help='json file name', default="/HDD/dataset/sba_museum/image_caption.json")  # 저장하고자 하는 json 파일 경로
+                        help='version')
+    parser.add_argument('--json_file_name', type=str, help='json file name', default="/HDD/dataset/sba_museum/image_caption_testing.json")  # 저장하고자 하는 json 파일 경로
 
     # Learning Rates
     parser.add_argument('--lr_backbone', type=float, help='backbone learning rate', default=1e-5)
@@ -67,11 +72,10 @@ if __name__ == '__main__':
     parser.add_argument('--dilation', type=bool, help='dilation', default=True)
 
     # Basic
-    parser.add_argument('--device', type=str, help='device type', default='cpu')
     parser.add_argument('--seed', type=int, help='seed', default=42)
     parser.add_argument('--batch_size', type=int, help='batch size', default=32)
     parser.add_argument('--num_workers', type=int, help='number of workers', default=4)
-    parser.add_argument('--checkpoint', type=str, help='checkpoint path', default='/HDD/dataset/sba_museum/checkpoint3.pth')  # 한국어 COCO 데이터셋으로 훈련한 checkpoint load
+    parser.add_argument('--checkpoint', type=str, help='checkpoint path', default='/HDD/dataset/sba_museum/checkpoint_test.pth')  # 한국어 COCO 데이터셋으로 훈련한 checkpoint load
     parser.add_argument('--clip_max_norm', type=float, help='clip max norm', default=0.1)
 
     # Transformer
@@ -87,6 +91,10 @@ if __name__ == '__main__':
     parser.add_argument('--dim_feedforward', type=int, help='feedforward dimension', default=2048)
     parser.add_argument('--nheads', type=int, help='number of heads', default=8)
     parser.add_argument('--pre_norm', type=bool, help='pre norm', default=True)
+
+    # Topic
+    parser.add_argument('--num_topic', type=int, default=5)
+    parser.add_argument('--num_word', type=int, default=9)
 
     # Dataset
     parser.add_argument('--image_dir', type=str, help='coco image path', default='/HDD/dataset/coco_2014')

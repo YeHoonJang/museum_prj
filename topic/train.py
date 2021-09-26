@@ -32,10 +32,8 @@ def topic_training(args):
     corpus = [dictionary.doc2bow(text) for text in caption['clean_caption']]
 
     # lda model
-    NUM_TOPIC = 5
-    NUM_WORD = 9
-    lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=NUM_TOPIC, id2word=dictionary, passes=30)
-    topics = lda_model.print_topics(num_words=NUM_WORD)
+    lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=args.num_topic, id2word=dictionary, passes=30)
+    topics = lda_model.print_topics(num_words=args.num_word)
 
     # 모델 저장
     lda_model.save(os.path.join(args.total_data_path, 'model/konlpy_model.model'))

@@ -8,8 +8,8 @@ import math
 import torch
 from torch.utils.data import DataLoader
 # Import Custom Modules
-from captioning.datasets import utils
-from captioning.datasets import coco
+from captioning.datasets.utils import NestedTensor, get_rank
+from captioning.datasets.coco import build_dataset
 
 def train_one_epoch(model, criterion, data_loader,
                     optimizer, device, epoch, max_norm):
@@ -21,7 +21,7 @@ def train_one_epoch(model, criterion, data_loader,
 
     with tqdm.tqdm(total=total) as pbar:
         for images, masks, caps, cap_masks in data_loader:
-            samples = utils.NestedTensor(images, masks).to(device)
+            samples = NestedTensor(images, masks).to(device)
             caps = caps.to(device)
             cap_masks = cap_masks.to(device)
 
@@ -54,7 +54,7 @@ def evaluate(model, criterion, data_loader, device):
 
     with tqdm.tqdm(total=total) as pbar:
         for images, masks, caps, cap_masks in data_loader:
-            samples = utils.NestedTensor(images, masks).to(device)
+            samples = NestedTensor(images, masks).to(device)
             caps = caps.to(device)
             cap_masks = cap_masks.to(device)
 
@@ -70,10 +70,10 @@ def evaluate(model, criterion, data_loader, device):
 def captioning_training(args):
 
     # Device setting
-    device = torch.device(args.device)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Seed setting
-    seed = args.seed + utils.get_rank()
+    seed = args.seed + get_rank()
     torch.manual_seed(seed)
     np.random.seed(seed)
 
@@ -81,8 +81,7 @@ def captioning_training(args):
     model = torch.hub.load('saahiluppal/catr', args.catr_version, pretrained=False)
     model.to(device)
 
-    n_parameters = sum(p.numel()
-                       for p in model.parameters() if p.requires_grad)
+    n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Number of params: {n_parameters}")
 
     param_dicts = [
@@ -102,8 +101,8 @@ def captioning_training(args):
 
     # Dataset setting
     dataset_dict = {
-        'train': coco.build_dataset(args, mode='training'),
-        'valid': coco.build_dataset(args, mode='validation')
+        'train': build_dataset(args, mode='training'),
+        'valid': build_dataset(args, mode='validation')
     }
 
     dataloader_dict = {
@@ -117,7 +116,7 @@ def captioning_training(args):
 
     # checkpoint setting
     start_epoch = 0
-    if os.path.exists(args.checkpoint):
+    if args.resume:
         print("Loading Checkpoint...")
         checkpoint = torch.load(args.checkpoint, map_location='cpu')
         model.load_state_dict(checkpoint['model'])
