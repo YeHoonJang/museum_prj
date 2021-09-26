@@ -36,4 +36,4 @@ def topic_training(args):
     topics = lda_model.print_topics(num_words=args.num_word)
 
     # 모델 저장
-    lda_model.save(os.path.join(args.total_data_path, 'model/konlpy_model.model'))
+    lda_model.save(os.path.join(args.total_data_path, 'model/konlpy_model_test.model'))

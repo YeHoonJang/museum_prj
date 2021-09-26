@@ -7,6 +7,7 @@ from time import time
 
 from captioning.train import captioning_training
 from captioning.generate import caption_generating
+from topic.preprocessing import topic_preprocessing
 from topic.train import topic_training
 from topic.generate import topic_weight_calculating
 
@@ -28,10 +29,13 @@ def main(args):
     if args.caption_generating:
         caption_generating(args)
 
+    if args.topic_preprocessing:
+        topic_preprocessing(args)
+
     if args.topic_training:
         topic_training(args)
     
-    if args.topic_weight_calculate:
+    if args.topic_weight_calculating:
         topic_weight_calculating(args)
 
     if args.regression_ensemble:
@@ -46,6 +50,7 @@ if __name__ == '__main__':
     # Task setting
     parser.add_argument('--captioning_training', action='store_true')
     parser.add_argument('--caption_generating', action='store_true')
+    parser.add_argument('--topic_preprocessing', action='store_true')
     parser.add_argument('--topic_training', action='store_true')
     parser.add_argument('--topic_weight_calculating', action='store_true')
     parser.add_argument('--resume', action='store_true')

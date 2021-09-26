@@ -5,7 +5,7 @@ import pandas as pd
 from glob import glob
 from datetime import datetime
 
-def text_preprocessing(args):
+def topic_preprocessing(args):
 
     #===================================#
     #============Naver News=============#
@@ -30,9 +30,9 @@ def text_preprocessing(args):
     news_data_total.reset_index(inplace=True, drop=True)
 
 
-    # ===================================#
-    # ========TripAdvisor Reviews========#
-    # ===================================#
+    #===================================#
+    #========TripAdvisor Reviews========#
+    #===================================#
 
     review_data_total = pd.DataFrame()
     review_list = glob(os.path.join(args.text_data_path, 'review/*.csv'))
@@ -55,7 +55,7 @@ def text_preprocessing(args):
     #===================================#
 
     insta_data_total = pd.DataFrame()
-    json_list = glob(os.path.join(args.path, '*/*/*.json'))
+    json_list = glob(os.path.join(args.captioning_image_path, '*/*/*.json'))
 
     for path_ in json_list:
         # Data pre-processing
@@ -68,9 +68,9 @@ def text_preprocessing(args):
     insta_data_total['content'] = insta_data_total.index
 
 
-    # ===================================#
-    # ============Captioning=============#
-    # ===================================#
+    #===================================#
+    #============Captioning=============#
+    #===================================#
 
     caption_data_total = pd.DataFrame()
     caption_json_list = glob(os.path.join(args.caption_data_path, '*/*.json'))
@@ -92,16 +92,16 @@ def text_preprocessing(args):
     caption_data_total = caption_data_total.groupby(['date', 'content'])['caption'].apply(lambda x: ', '.join(x)).reset_index()
 
 
-    # ===================================#
-    # ======Instagram & Caption Join=====#
-    # ===================================#
+    #===================================#
+    #======Instagram & Caption Join=====#
+    #===================================#
 
     join_data_total = pd.merge(insta_data_total, caption_data_total, on=['date', 'content'], how='outer').reset_index()
     join_data_total['text'] = join_data_total.set_index('index')[['text', 'caption']].stack().groupby(level=0,sort=False).agg(', '.join)
 
-    # ===================================#
-    # ===============Total===============#
-    # ===================================#
+    #===================================#
+    #===============Total===============#
+    #===================================#
 
     news_data_total_text = ['date', 'text']
     review_data_total_text = ['date', 'text']
@@ -110,6 +110,5 @@ def text_preprocessing(args):
     total_data = pd.concat([news_data_total[news_data_total_text], review_data_total[review_data_total_text],
                             join_data_total[join_data_total_text]])
 
-
     # Save csv
-    total_data.to_csv(os.path.join(args.total_data_path,"total_datas.csv"), index=False)
+    total_data.to_csv(os.path.join(args.total_data_path,"total_datas_test.csv"), index=False)
