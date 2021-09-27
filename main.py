@@ -100,6 +100,7 @@ if __name__ == '__main__':
     # Topic
     parser.add_argument('--num_topic', type=int, default=5)
     parser.add_argument('--num_word', type=int, default=9)
+    parser.add_argument('--stop_word', type=str, default='/HDD/dataset/sba_museum/stop_word.txt')
 
     # Dataset
     parser.add_argument('--image_dir', type=str, help='coco image path', default='/HDD/dataset/coco_2014')
