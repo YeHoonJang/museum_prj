@@ -13,7 +13,8 @@ class CustomDataset(Dataset):
     def __init__(self, data_path, transform, args):
         tokenizer = KoBertTokenizer.from_pretrained('monologg/kobert')
 
-        self.dir_element = glob.glob(data_path+"/*/*/*.jpg")
+        self.dir_element = glob.glob(data_path + "/*/*/*.jpg")
+        # self.dir_element = glob.glob(data_path+"/seoulmediacity/*/*.jpg")
         self.transform = transform
         self.data_path = data_path
         self.start_token = tokenizer.convert_tokens_to_ids(tokenizer._cls_token)

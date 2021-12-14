@@ -15,6 +15,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'    # warning log filter
 
 @torch.no_grad()
 def evaluate(model, data_loader, args, device):
+    # Device setting
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    print(f'Initializing Device: {device}')
+
     model.eval()
     with torch.no_grad():
 
@@ -48,9 +53,10 @@ def evaluate(model, data_loader, args, device):
                 json.dump({args.json_file_name: json_list}, make_file, ensure_ascii=False, indent="\t")
 
 def caption_generating(args):
-
+    print("Start Generating Caption!")
     # Device setting
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f'Initializing Device: {device}')
 
     # load dataloader
     predict_Dataset = CustomDataset(data_path=args.captioning_image_path, transform=coco.val_transform, args=args)
