@@ -1,5 +1,9 @@
 checkpoint3.pth
 *.ipynb
+*.txt
+*.csv
+*.jpg
+*.png
 
 .idea/
 ./data/
